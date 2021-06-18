@@ -3,7 +3,10 @@ if (session_status() === PHP_SESSION_NONE) {
   session_name("localizator");
   session_start();
 }
-$configpath = "connect/mainconfig.php";
+define('LOCALIZER', 1);
+
+require_once "core/defines.php";
+
 
 function EraseQuotes($string) {
     str_replace('"', "", $string);
@@ -23,7 +26,7 @@ if (isset($_POST["login"])){
     $username  = htmlentities($username, ENT_QUOTES);
     $username  = preg_replace('/\s+/', ' ', $username);
     $userpass = $_POST['password'];
-    require_once $configpath;
+    require_once PATH_CONFIG;
     $cpas = str_replace("%", "$", Config::$PAS);
 
     if ((Config::$USR == $username)){
@@ -62,10 +65,12 @@ if (isset($_GET["page"])){
     $PAGE = "EMPTY";
 }
 
-if (!file_exists($configpath)){
+if (!file_exists(PATH_CONFIG)){
     $PAGE = "CONFIG OFF";
     $CONNECTED = 0;
 } else {
+    require_once PATH_CONFIG;
+    require_once PATH_DBCONNECT;
     $CONNECTED = 1;
 };
 
@@ -96,7 +101,7 @@ class Config {
 ?>';
     #2 CREATE FILE
     //$result = json_encode($RESULT, JSON_UNESCAPED_UNICODE);
-    $file   = fopen($configpath, 'w');
+    $file   = fopen(PATH_CONFIG, 'w');
     fputs($file,$configfile);
     fclose($file);
     #3 ASSIGN SESSION
@@ -169,11 +174,16 @@ box-shadow: 0px 0px 2px rgb(0 0 0 / 30%);
   
 }
 #maincontent {
-  width: calc(100%-250px);
-  padding-left: 22px;
+  width: calc(100% - 250px);
+  margin-left: 250px;
+ /* padding-left: 22px; */
+ padding: 22px;
+}
+#maincontent .container {
+    width: 100% !important;
 }
 #maincontent.mc-large {
-  width: calc(100%-50px);
+  width: calc(100% - 50px);
   float: left;
   margin-left: 50px;
 }
@@ -239,8 +249,18 @@ box-shadow: 0px 0px 2px rgb(0 0 0 / 30%);
           <a class="navbar-item">
             Manage users
           </a>
-          <a class="navbar-item">
-            Connect SQL
+          <a class="navbar-item" href="index.php?page=dbset">
+          <span class="icon-text">
+  <span>Connect SQL  <span class="icon">
+    <i class="fas fa-circle <?php
+    if (isset($db_errno)){
+        echo "has-text-danger";
+    } else {
+        echo "has-text-primary";
+    };  ?>"></i>
+  </span></span>
+</span>
+            
           </a>
           <a class="navbar-item">
             Contact
@@ -311,6 +331,28 @@ box-shadow: 0px 0px 2px rgb(0 0 0 / 30%);
         <div class="container">
           <div class="columns">
             <div class="column is-12-desktop">
+<?php if (isset($db_errno)): ?>
+<article class="message is-danger">
+  <div class="message-header">
+    <p>Database connection ERROR <?php echo $db_errno; ?>: <?php
+    if ($db_errno == 1045){
+        echo "'wrong username/password";
+    } else if ($db_errno == 2002){
+        echo "'wrong localhost'";
+    } else if ($db_errno == 1049){
+        echo "'wrong database name'";
+    }; ?></p>
+    <button class="delete" aria-label="delete"></button>
+  </div>
+  <div class="message-body">
+    <?php echo $db_errmsg; ?>
+    <br>
+    <span class="has-text-link-dark">To solve this problem, try to change your database connection settings <a href="index.php?page=dbset&err=<?php
+    echo $db_errno; ?>">here.</a></span>
+  </div>
+</article>
+<?php endif; ?>
+
               <h1 class="title is-2 is-spaced">
                 <?php echo $PAGE; ?>
               </h1>
@@ -573,7 +615,7 @@ elseif (isset($_GET["action"]) && ($_GET["action"] == "login")):
   <div class="container is-min-desktop">
   <div class="columns">
   <div class="column"></div>
-  <div class="column is-half">
+  <div class="column is-half mt-6">
   <div class="notification has-background-primary-light ">
     <p class='is-size-4'>Hello <?php if (isset($username)): echo $username; else: echo "Stranger"; endif; ?>!</p>
 
@@ -777,5 +819,6 @@ alert("<?php echo $configfile; ?>");
 
 <?php
 endif;
+
 //unset($_SESSION["LC_user"]);
 ?>
