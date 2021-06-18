@@ -45,7 +45,7 @@ if (isset($_POST["login"])){
 if (isset($_GET["page"])){
     $pager = $_GET["page"];
     if ($pager == "index"){
-        $PAGE = "index";
+        $PAGE = "main";
     } else if ($pager == "localization"){
         $PAGE = "localization";
     } else if ($pager == "langs"){
@@ -54,10 +54,10 @@ if (isset($_GET["page"])){
         $PAGE = "autofill";
     } else if ($pager == "users"){
         $PAGE = "users";
-    } else if ($pager == "sqlconnect"){
-        $PAGE = "connect";
+    } else if ($pager == "dbset"){
+        $PAGE = "dbset";
     } else if ($pager == "login"){
-        $PAGE = "login";
+        $PAGE = "main";
     } else {
         $PAGE = "login";
     };
@@ -76,16 +76,23 @@ if (!file_exists(PATH_CONFIG)){
 
 if (isset($_POST["sender"])){
     #1 HARVEST INFO
-    $username  = strip_tags( $_POST['username'] );
-    $username  = htmlentities($username, ENT_QUOTES);
-    $username  = preg_replace('/\s+/', ' ', $username);
-    $userpass = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $userpass = str_replace("$", "%", $userpass);
+    if (isset($_POST['username'])){
+        $username  = strip_tags( $_POST['username'] );
+        $username  = htmlentities($username, ENT_QUOTES);
+        $username  = preg_replace('/\s+/', ' ', $username);
+        $userpass  = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $userpass  = str_replace("$", "%", $userpass);
+        $lang      = EraseQuotes(strip_tags( $_POST["language"] ));
+    } else {
+        $username = Config::$USR;
+        $userpass = Config::$PAS;
+        $lang     = Config::$LNG;
+    }
+
     $dbname = EraseQuotes(strip_tags( $_POST["dbname"] ));
     $dbuser = EraseQuotes(strip_tags( $_POST["dbuser"] ));
     $localhost = EraseQuotes(strip_tags( $_POST["localhost"] ));
     $dbpass = EraseQuotes(strip_tags( $_POST["dbpass"] ));
-    $lang = EraseQuotes(strip_tags( $_POST["language"] ));
     $ttime = date('l jS \of F Y h:i:s A');
     $configfile = '<' . '?php 
     /* file generated on ' . $ttime . ' */ 
@@ -109,7 +116,7 @@ class Config {
     $_SESSION["LC_pass"] = $userpass;
     $_SESSION["LC_lang"] = $lang;
     unset($_POST["sender"]);
-    header("Location: index.php");
+    header("Location: index.php?page=dbset");
 };
 
 
@@ -224,7 +231,7 @@ box-shadow: 0px 0px 2px rgb(0 0 0 / 30%);
     <nav id="navbar" class="bd-navbar navbar">
       <a class="navbar-icon navbar-item sidebar-trigger" onclick="toggleside()"><i class="fas fa-bars"></i></a>
       <div class="navbar-brand">
-        <a class="navbar-item" href="https://bulma.io">
+        <a class="navbar-item" href="index.php?page=index">
       <img src="https://bulma.io/images/bulma-logo.png" alt="Bulma: Free, open source, and modern CSS framework based on Flexbox" width="112" height="28">
         </a>
       </div>
@@ -353,159 +360,23 @@ box-shadow: 0px 0px 2px rgb(0 0 0 / 30%);
 </article>
 <?php endif; ?>
 
-              <h1 class="title is-2 is-spaced">
-                <?php echo $PAGE; ?>
-              </h1>
-              <h2 class="subtitle is-4">
+
+
+            
+      <!--        <h2 class="subtitle is-4">
                   Congratulations! You're running the <strong>Bulma start</strong> project.
                   <br>
                   It includes everything you need to <strong>build your own website</strong> with Bulma.
               </h2>
-            </div>
-          </div>
-        </div>
-      
 
-      <div class="container">
-        <div class="columns">
-          <div class="column column is-12-desktop">
-            <div class="content">
-              <h3>What's included</h3>
-              <p>
-                The <code>npm</code> dependencies included in <code>package.json</code> are:
-              </p>
-              <ul>
-                <li>
-                  <code><a href="https://github.com/jgthms/bulma">bulma</a></code>
-                </li>
-                <li>
-                  <code><a href="https://github.com/sass/node-sass">node-sass</a></code> to compile your own Sass file
-                </li>
-                <li>
-                  <code><a href="https://github.com/postcss/postcss-cli">postcss-cli</a></code> and <code><a href="https://github.com/postcss/autoprefixer">autoprefixer</a></code> to add support for older browsers
-                </li>
-                <li>
-                  <code><a href="https://babeljs.io/docs/usage/cli/">babel-cli</a></code>,
-                  <code><a href="https://github.com/babel/babel-preset-env">babel-preset-env</a></code>
-                  and
-                  <code><a href="https://github.com/jmcriffey/babel-preset-es2015-ie">babel-preset-es2015-ie</a></code>
-                  for compiling ES6 JavaScript files
-                </li>
-              </ul>
-              <p>
-                Apart from <code>package.json</code>, the following files are included:
-              </p>
-              <ul>
-                <li>
-                  <code>.babelrc</code> configuration file for <a href="https://babeljs.io/">Babel</a>
-                </li>
-                <li>
-                  <code>.gitignore</code> common <a href="https://git-scm.com/">Git</a> ignored files
-                </li>
-                <li>
-                  <code>index.html</code> this HTML5 file
-                </li>
-                <li>
-                  <code>_sass/main.scss</code> a basic SCSS file that <strong>imports Bulma</strong> and explains how to <strong>customize</strong> your styles, and compiles to <code>css/main.css</code>
-                </li>
-                <li>
-                  <code>_javascript/main.js</code> an ES6 JavaScript that compiles to <code>lib/main.js</code>
-                </li>
-              </ul>
-              <h3>Try it out!</h3>
-              <p>
-                To see if your setup works, follow these steps:
-              </p>
-              <ol>
-                <li>
-                  <p>
-                    <strong>Move</strong> to this directory:
-                    <br>
-                    <pre><code>cd bulma-start</code></pre>
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    <strong>Install</strong> all dependencies:
-                    <br>
-                    <pre><code>npm install</code></pre>
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    <strong>Start</strong> the CSS and JS watchers:
-                    <br>
-                    <pre><code>npm start</code></pre>
-                  </p>
-                </li>
-                <li>
-                  <p>
-                    <strong>Edit</strong> <code>_sass/main.scss</code> by adding the following rule at the <strong>end</strong> of the file:
-                    <br>
-                    <pre><span style="color: #22863a;">html</span> {
-  <span style="color: #005cc5;"><span style="color: #005cc5;">background-color</span></span>: <span style="color: #24292e">$green</span>;
-}</pre>
-                  </p>
-                </li>
-              </ol>
-              <p>
-                The page background should turn <strong class="has-text-success">green</strong>!
-              </p>
-              <h3>Get started</h3>
-              <p>
-                You're <strong>ready</strong> to create your own designs with Bulma. Just edit or duplicate this page, or simply create a new one!
-                <br>
-                For example, this page is <strong>only</strong> built with the following <strong>Bulma elements</strong>:
-              </p>
+            <div class="content"> -->
+<?php #-------------------------------------------------------------#
+
+
+
+require_once PATH_COMPONENTS . DS . $PAGE . DS . "index.php";
+?>
             </div>
-            <table class="table is-bordered is-fullwidth">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>CSS class</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th>Columns</th>
-                  <td>
-                    <code><a href="http://bulma.io/documentation/columns/basics">columns</a></code>
-                    <code><a href="http://bulma.io/documentation/columns/basics">column</a></code>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Layout</th>
-                  <td>
-                    <code><a href="http://bulma.io/documentation/layout/section">section</a></code>
-                    <code><a href="http://bulma.io/documentation/layout/container">container</a></code>
-                    <code><a href="http://bulma.io/documentation/layout/footer">footer</a></code>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Elements</th>
-                  <td>
-                    <code><a href="http://bulma.io/documentation/elements/button">button</a></code>
-                    <code><a href="http://bulma.io/documentation/elements/content">content</a></code>
-                    <code><a href="http://bulma.io/documentation/elements/title">title</a></code>
-                    <code><a href="http://bulma.io/documentation/elements/title">subtitle</a></code>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Form</th>
-                  <td>
-                    <code><a href="http://bulma.io/documentation/form/general">field</a></code>
-                    <code><a href="http://bulma.io/documentation/form/general">control</a></code>
-                  </td>
-                </tr>
-                <tr>
-                  <th>Helpers</th>
-                  <td>
-                    <code><a href="http://bulma.io/documentation/modifiers/typography-helpers/">has-text-centered</a></code>
-                    <code><a href="http://bulma.io/documentation/modifiers/typography-helpers/">has-text-weight-semibold</a></code>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
             <div class="content">
               <p>
                 If you want to <strong>learn more</strong>, follow these links:
@@ -797,10 +668,16 @@ function showterms(){
     <button type="submit" name="sender" class="button is-link">Submit</button>
   </div>
   <div class="control">
-    <button class="button is-link is-light">Cancel</button>
+    <button onclick="clearinputs(); return false;" class="button is-link is-light">Clear</button>
   </div>
 </div>
 </form>
+<script>
+function clearinputs(){
+    $( ".input" ).val("");
+    return false;
+};
+</script>
 
   </div>
 </div>

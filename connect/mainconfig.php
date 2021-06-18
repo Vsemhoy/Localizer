@@ -1,12 +1,12 @@
 <?php 
-    /* file generated on Friday 18th of June 2021 09:47:38 PM */ 
+    /* file generated on Saturday 19th of June 2021 01:00:06 AM */ 
 class Config {
-    public static $USR = "SuperUser"; 
-    public static $PAS = "%2y%10%uulVq70O5KWHaEwdlrH2gOpmpclkfZK8aeHNmwb.MfI40e1x7jEU."; 
+    public static $USR = ""; 
+    public static $PAS = "%2y%10%BxgSd.OBXMPRALGuNCjgMuzeJm6x2LMOOaM10bTYeGpQrg1g6Ocdu"; 
     public static $DB =  "teftele"; 
     public static $HS =  "localhost"; 
     public static $US =  "mysql"; 
     public static $PS =  "mysql";
-    public static $LNG = "1";
+    public static $LNG = "";
 };
 ?>
